@@ -1,6 +1,9 @@
 use super::utils::{get_manifest_dir, get_trusted_setup_path};
 use crate::test_vectors::compute_cells_and_kzg_proofs;
-use kzg::{eip_4844::{CELLS_PER_EXT_BLOB, FIELD_ELEMENTS_PER_CELL}, FFTSettings, Fr, G1Affine, G1Fp, G1GetFp, G1Mul, KZGSettings, Poly, G1, G2};
+use kzg::{
+    eip_4844::{CELLS_PER_EXT_BLOB, FIELD_ELEMENTS_PER_CELL},
+    FFTSettings, Fr, G1Affine, G1Fp, G1GetFp, G1Mul, KZGSettings, Poly, G1, G2,
+};
 use std::{fs, path::PathBuf};
 
 const COMPUTE_CELLS_AND_KZG_PROOFS_TEST_VECTORS: &str =
@@ -52,25 +55,42 @@ pub fn test_vectors_compute_cells_and_kzg_proofs<
             }
         };
 
-        let mut recv_cells = vec![core::array::from_fn::<_, FIELD_ELEMENTS_PER_CELL, _>(|_| TFr::default()); CELLS_PER_EXT_BLOB];
+        let mut recv_cells =
+            vec![
+                core::array::from_fn::<_, FIELD_ELEMENTS_PER_CELL, _>(|_| TFr::default());
+                CELLS_PER_EXT_BLOB
+            ];
         let mut recv_proofs = vec![TG1::default(); CELLS_PER_EXT_BLOB];
 
-        match compute_cells_and_kzg_proofs(Some(&mut recv_cells), Some(&mut recv_proofs), &blob, &settings) {
+        match compute_cells_and_kzg_proofs(
+            Some(&mut recv_cells),
+            Some(&mut recv_proofs),
+            &blob,
+            &settings,
+        ) {
             Err(_) => assert!(test.get_output().is_none()),
             Ok(()) => {
                 let (exp_cells, exp_proofs) = test.get_output().unwrap();
-    
+
                 let recv_cells = recv_cells
                     .into_iter()
-                    .map(|it| it.iter().flat_map(|it| it.to_bytes()).collect::<Vec<_>>())
+                    .map(|it: [TFr; 64]| it.iter().flat_map(|it| it.to_bytes()).collect::<Vec<_>>())
                     .collect::<Vec<Vec<u8>>>();
                 let recv_proofs = recv_proofs
                     .into_iter()
-                    .map(|it| it.to_bytes().to_vec())
+                    .map(|it: TG1| it.to_bytes().to_vec())
                     .collect::<Vec<Vec<u8>>>();
 
-                assert!(recv_cells == exp_cells, "Cells do not match, for test vector {:?}", test_file);
-                assert_eq!(recv_proofs, exp_proofs, "Proofs do not match, for test vector {:?}", test_file);
+                assert!(
+                    recv_cells == exp_cells,
+                    "Cells do not match, for test vector {:?}",
+                    test_file
+                );
+                assert_eq!(
+                    recv_proofs, exp_proofs,
+                    "Proofs do not match, for test vector {:?}",
+                    test_file
+                );
             }
         }
     }
