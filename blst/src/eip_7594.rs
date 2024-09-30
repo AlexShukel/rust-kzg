@@ -5,8 +5,8 @@ use crate::{
 use kzg::{
     common_utils::{reverse_bit_order, reverse_bits_limited},
     eip_4844::{
-        blob_to_polynomial, CELLS_PER_EXT_BLOB, FIELD_ELEMENTS_PER_BLOB, FIELD_ELEMENTS_PER_CELL,
-        FIELD_ELEMENTS_PER_EXT_BLOB,
+        blob_to_polynomial, Bytes48, Cell, CELLS_PER_EXT_BLOB, FIELD_ELEMENTS_PER_BLOB,
+        FIELD_ELEMENTS_PER_CELL, FIELD_ELEMENTS_PER_EXT_BLOB,
     },
     Fr, G1Mul, KZGSettings, G1,
 };
@@ -427,4 +427,14 @@ pub fn recover_cells_and_kzg_proofs(
     }
 
     Ok(())
+}
+
+pub fn verify_cell_kzg_proof_batch(
+    commitments_bytes: &[Bytes48],
+    cell_indices: &[u64],
+    cells: &[Cell],
+    proofs_bytes: &[Bytes48],
+    s: &FsKZGSettings,
+) -> Result<bool, String> {
+    Ok(false)
 }

@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
-use crate::{Bytes48, Cell, Error};
 use alloc::string::String;
 use alloc::vec::Vec;
+use kzg::eip_4844::{Bytes48, Cell, Error};
 use serde::Deserialize;
 
 #[derive(Deserialize)]

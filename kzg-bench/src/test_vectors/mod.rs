@@ -8,5 +8,5 @@ pub mod verify_kzg_proof;
 
 /* eip-7594 */
 // pub mod recover_cells_and_kzg_proofs;
-// pub mod verify_cell_kzg_proof_batch;
 pub mod compute_cells_and_kzg_proofs;
+pub mod verify_cell_kzg_proof_batch;

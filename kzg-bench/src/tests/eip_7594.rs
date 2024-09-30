@@ -1,7 +1,7 @@
 use super::utils::{get_manifest_dir, get_trusted_setup_path};
-use crate::test_vectors::compute_cells_and_kzg_proofs;
+use crate::test_vectors::{compute_cells_and_kzg_proofs, verify_cell_kzg_proof_batch};
 use kzg::{
-    eip_4844::{CELLS_PER_EXT_BLOB, FIELD_ELEMENTS_PER_CELL},
+    eip_4844::{Bytes48, Cell, CELLS_PER_EXT_BLOB, FIELD_ELEMENTS_PER_CELL},
     FFTSettings, Fr, G1Affine, G1Fp, G1GetFp, G1Mul, KZGSettings, Poly, G1, G2,
 };
 use std::{fs, path::PathBuf};
@@ -92,6 +92,58 @@ pub fn test_vectors_compute_cells_and_kzg_proofs<
                     test_file
                 );
             }
+        }
+    }
+}
+
+pub fn test_vectors_verify_cell_kzg_proof_batch<
+    TFr: Fr,
+    TG1: G1 + G1Mul<TFr> + G1GetFp<TG1Fp>,
+    TG2: G2,
+    TPoly: Poly<TFr>,
+    TFFTSettings: FFTSettings<TFr>,
+    TKZGSettings: KZGSettings<TFr, TG1, TG2, TFFTSettings, TPoly, TG1Fp, TG1Affine>,
+    TG1Fp: G1Fp,
+    TG1Affine: G1Affine<TG1, TG1Fp>,
+>(
+    load_trusted_setup: &dyn Fn(&str) -> Result<TKZGSettings, String>,
+    verify_cell_kzg_proof_batch: &dyn Fn(
+        &[Bytes48],
+        &[u64],
+        &[Cell],
+        &[Bytes48],
+        &TKZGSettings,
+    ) -> Result<bool, String>,
+    bytes_to_blob: &dyn Fn(&[u8]) -> Result<Vec<TFr>, String>,
+) {
+    let settings = load_trusted_setup(get_trusted_setup_path().as_str()).unwrap();
+    let test_files: Vec<PathBuf> = glob::glob(&format!(
+        "{}/{}",
+        get_manifest_dir(),
+        VERIFY_CELL_KZG_PROOF_BATCH_TEST_VECTORS
+    ))
+    .unwrap()
+    .collect::<Result<Vec<_>, _>>()
+    .unwrap();
+    assert!(!test_files.is_empty());
+
+    for test_file in test_files {
+        let yaml_data = fs::read_to_string(test_file.clone()).unwrap();
+        let test: verify_cell_kzg_proof_batch::Test = serde_yaml::from_str(&yaml_data).unwrap();
+
+        let (Ok(commitments), Ok(cell_indices), Ok(cells), Ok(proofs)) = (
+            test.input.get_commitments(),
+            test.input.get_cell_indices(),
+            test.input.get_cells(),
+            test.input.get_proofs(),
+        ) else {
+            assert!(test.get_output().is_none());
+            continue;
+        };
+
+        match verify_cell_kzg_proof_batch(&commitments, &cell_indices, &cells, &proofs, &settings) {
+            Ok(res) => assert_eq!(res, test.get_output().unwrap()),
+            _ => assert!(test.get_output().is_none()),
         }
     }
 }
