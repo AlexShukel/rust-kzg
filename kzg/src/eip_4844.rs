@@ -61,10 +61,7 @@ pub const FIELD_ELEMENTS_PER_EXT_BLOB: usize = 2 * FIELD_ELEMENTS_PER_BLOB;
 pub const FIELD_ELEMENTS_PER_CELL: usize = 64;
 pub const BYTES_PER_CELL: usize = FIELD_ELEMENTS_PER_CELL * BYTES_PER_FIELD_ELEMENT;
 pub const CELLS_PER_EXT_BLOB: usize = FIELD_ELEMENTS_PER_EXT_BLOB / FIELD_ELEMENTS_PER_CELL;
-pub const RANDOM_CHALLENGE_KZG_CELL_BATCH_DOMAIN: [u8; 32] = [
-    82, 67, 95, 86, 69, 82, 73, 70, 89, 95, 67, 69, 76, 76, 95, 75, 90, 71, 95, 80, 82, 79, 79, 70,
-    95, 66, 65, 84, 67, 72, 95, 86,
-]; // "b'RCKZGCBATCH__V1_'"
+pub const RANDOM_CHALLENGE_KZG_CELL_BATCH_DOMAIN: [u8; 16] = *b"RCKZGCBATCH__V1_";
 
 ////////////////////////////// C API for EIP-4844 //////////////////////////////
 
@@ -162,7 +159,7 @@ pub struct CKZGSettings {
 
 #[repr(C)]
 pub struct Cell {
-    bytes: [u8; BYTES_PER_CELL],
+    pub bytes: [u8; BYTES_PER_CELL],
 }
 
 #[repr(C)]
@@ -235,6 +232,7 @@ where
 
 ////////////////////////////// Utility functions for EIP-4844 //////////////////////////////
 
+#[allow(clippy::type_complexity)]
 pub fn load_trusted_setup_string(contents: &str) -> Result<(Vec<u8>, Vec<u8>, Vec<u8>), String> {
     let mut offset = 0;
 
