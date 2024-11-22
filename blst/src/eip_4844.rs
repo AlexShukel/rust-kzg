@@ -182,6 +182,7 @@ macro_rules! handle_ckzg_badargs {
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn blob_to_kzg_commitment(
     out: *mut KZGCommitment,
@@ -201,6 +202,7 @@ pub unsafe extern "C" fn blob_to_kzg_commitment(
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn load_trusted_setup(
     out: *mut CKZGSettings,
@@ -224,6 +226,7 @@ pub unsafe extern "C" fn load_trusted_setup(
 
 /// # Safety
 #[cfg(feature = "std")]
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn load_trusted_setup_file(
     out: *mut CKZGSettings,
@@ -255,6 +258,7 @@ pub unsafe extern "C" fn load_trusted_setup_file(
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn compute_blob_kzg_proof(
     out: *mut KZGProof,
@@ -274,6 +278,7 @@ pub unsafe extern "C" fn compute_blob_kzg_proof(
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn free_trusted_setup(s: *mut CKZGSettings) {
     if s.is_null() {
@@ -307,6 +312,7 @@ pub unsafe extern "C" fn free_trusted_setup(s: *mut CKZGSettings) {
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn verify_kzg_proof(
     ok: *mut bool,
@@ -331,6 +337,7 @@ pub unsafe extern "C" fn verify_kzg_proof(
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn verify_blob_kzg_proof(
     ok: *mut bool,
@@ -353,6 +360,7 @@ pub unsafe extern "C" fn verify_blob_kzg_proof(
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn verify_blob_kzg_proof_batch(
     ok: *mut bool,
@@ -395,6 +403,7 @@ pub unsafe extern "C" fn verify_blob_kzg_proof_batch(
 }
 
 /// # Safety
+#[cfg(feature = "include-c-bindings")]
 #[no_mangle]
 pub unsafe extern "C" fn compute_kzg_proof(
     proof_out: *mut KZGProof,
